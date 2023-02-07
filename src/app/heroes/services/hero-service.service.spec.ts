@@ -1,4 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import {
   HttpClientTestingModule,
   HttpTestingController,
@@ -46,6 +50,92 @@ describe('HeroServiceService whit HttpClientTestingModule', () => {
     expect(req.request.method).toEqual('GET');
     req.flush(testHero);
     httpTestingController.verify();
+  });
+
+  it('can test HttpClient.get with matching header', () => {
+    const testHero: Heroes = {
+      id: 1,
+      name: 'test hero',
+      active: true,
+    };
+    httpClient
+      .get<Heroes>(testBaseUrl, {
+        headers: new HttpHeaders({ Authorization: 'my-auth-token' }),
+      })
+      .subscribe((hero) => expect(hero).toBe(testHero));
+    const req = httpTestingController.expectOne((request) =>
+      request.headers.has('Authorization')
+    );
+    req.flush(testHero);
+  });
+
+  it('can test multiple requests', () => {
+    const testHero: Heroes[] = [
+      {
+        id: 1,
+        name: 'json-server',
+        active: true,
+      },
+    ];
+    httpClient
+      .get<Heroes[]>(testBaseUrl)
+      .subscribe((hero) =>
+        expect(hero.length).withContext('should have no data').toEqual(0)
+      );
+
+    httpClient
+      .get<Heroes[]>(testBaseUrl)
+      .subscribe((hero) =>
+        expect(hero)
+          .withContext('should be one element array')
+          .toEqual([testHero[0]])
+      );
+
+    httpClient
+      .get<Heroes[]>(testBaseUrl)
+      .subscribe((hero) =>
+        expect(hero).withContext('should be expected data').toEqual(testHero)
+      );
+    const requests = httpTestingController.match(testBaseUrl);
+    expect(requests.length).toEqual(3);
+    requests[0].flush([]);
+    requests[1].flush([testHero[0]]);
+    requests[2].flush(testHero);
+  });
+
+  it('can test for 404 error', () => {
+    const emsg = 'deliberate 404 error';
+
+    httpClient.get<Heroes[]>(testBaseUrl).subscribe({
+      next: () => fail('should have failed with the 404 error'),
+      error: (error: HttpErrorResponse) => {
+        expect(error.status).withContext('status').toEqual(404);
+        expect(error.error).withContext('message').toEqual(emsg);
+      },
+    });
+    const req = httpTestingController.expectOne(testBaseUrl);
+    req.flush(emsg, { status: 404, statusText: 'Not Found' });
+  });
+
+  it('can test for network error', (done) => {
+    const errorEvent = new ProgressEvent('error');
+
+    httpClient.get<Heroes[]>(testBaseUrl).subscribe({
+      next: () => fail('should have failed with the network error'),
+      error: (error: HttpErrorResponse) => {
+        expect(error.error).toBe(errorEvent);
+        done();
+      },
+    });
+    const req = httpTestingController.expectOne(testBaseUrl);
+    req.error(errorEvent);
+  });
+
+  it('httpTestingController.verify should fail if HTTP response not simulated', () => {
+    httpClient.get('some/api').subscribe();
+    expect(() => httpTestingController.verify()).toThrow();
+    const req = httpTestingController.expectOne('some/api');
+    req.flush(null);
   });
 });
 
