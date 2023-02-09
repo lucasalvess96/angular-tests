@@ -20,7 +20,7 @@ const httpOpotions = {
   providedIn: 'root',
 })
 export class HeroServiceService {
-  private baseUrl: string = `${environment.baseUrl}/heroes`;
+  baseUrl: string = `${environment.baseUrl}/heroes`;
 
   constructor(private http: HttpClient) {}
 
