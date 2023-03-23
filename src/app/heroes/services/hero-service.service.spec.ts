@@ -87,15 +87,12 @@ describe('HeroesServiceService', () => {
         });
 
         it('should turn 500 into a user-friendly error', () => {
-            const msg: string = 'Deliberate 500';
+            const msg: string = 'internal server error';
             const retryCount: number = 2;
 
             heroService.getHeroes().subscribe({
-                next: (heroes: Heroes[]) =>
-                    expect(heroes)
-                        .withContext('failed to call error 500')
-                        .toEqual([]),
-                error: () => fail,
+                next: () => fail('expected to fail'),
+                error: (error) => expect(error.message).toContain(msg),
             });
 
             for (var i = 0, c = retryCount + 1; i < c; i++) {
@@ -111,9 +108,7 @@ describe('HeroesServiceService', () => {
         });
 
         it('should turn network error into user-facing error in a list of the heroes', (done: DoneFn) => {
-            const errorEvent: ProgressEvent<EventTarget> = new ProgressEvent(
-                'error'
-            );
+            const errorEvent = new ProgressEvent('error');
             const retryCount: number = 2;
 
             heroService.getHeroes().subscribe({
@@ -156,16 +151,13 @@ describe('HeroesServiceService', () => {
         });
 
         it('shoudl return id not found', () => {
-            const msg: string = 'Not found';
             const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+            const msg: string = 'Not found';
             const retryCount: number = 2;
 
             heroService.getHero(getHeroId).subscribe({
-                next: (hero: Heroes) =>
-                    expect(hero)
-                        .withContext('fail get hero by id')
-                        .toBe(getHeroId),
-                error: () => fail,
+                next: () => fail('expected to fail'),
+                error: (error) => expect(error.message).toContain(msg),
             });
 
             for (var i = 0, c = retryCount + 1; i < c; i++) {
@@ -173,7 +165,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}/?id=${getHeroId.id}`
                 );
                 expect(req.request.method).toEqual('GET');
-                req.flush(msg, { status: 404, statusText: 'Not Found' });
+                req.flush(msg, { status: 404, statusText: 'Not found' });
             }
         });
 
@@ -204,9 +196,7 @@ describe('HeroesServiceService', () => {
 
         it('should turn network error into user facing error when fetching an id', (done: DoneFn) => {
             const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
-            const errorEvent: ProgressEvent<EventTarget> = new ProgressEvent(
-                'error'
-            );
+            const errorEvent = new ProgressEvent('error');
             const retryCount: number = 2;
 
             heroService.getHero(getHeroId).subscribe({
@@ -222,7 +212,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}/?id=${getHeroId.id}`
                 );
                 expect(req.request.method).toEqual('GET');
-                req.flush(errorEvent, { status: 404, statusText: 'Not Found' });
+                req.error(errorEvent);
             }
         });
     });
@@ -389,7 +379,7 @@ describe('HeroesServiceService', () => {
                     expect(heroes)
                         .withContext('should return expected heroes')
                         .toEqual(updateHero),
-                error: fail,
+                error: () => fail,
             });
 
             const requests = httpTestingController.match(heroService.baseUrl);
@@ -429,14 +419,13 @@ describe('HeroesServiceService', () => {
         });
 
         it('shoudl return hero not found', () => {
+            const search: string = 'AB';
             const msg: string = 'Not found';
             const retryCount: number = 2;
-            const search: string = 'AB';
 
             heroService.searchHero(search).subscribe({
-                next: (hero: Heroes[]) =>
-                    expect(hero).withContext('fail get search hero').toBe(hero),
-                error: () => fail,
+                next: () => fail('expected to fail'),
+                error: (error) => expect(error.message).toContain(msg),
             });
 
             for (var i = 0, c = retryCount + 1; i < c; i++) {
@@ -444,7 +433,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}?name=${search}`
                 );
                 expect(req.request.method).toEqual('GET');
-                req.flush(msg, { status: 404, statusText: 'Not Found' });
+                req.flush(msg, { status: 404, statusText: 'Not found' });
             }
         });
 
@@ -493,7 +482,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}?name=${search}`
                 );
                 expect(req.request.method).toEqual('GET');
-                req.flush(errorEvent, { status: 404, statusText: 'Not Found' });
+                req.error(errorEvent);
             }
         });
     });
@@ -518,16 +507,13 @@ describe('HeroesServiceService', () => {
         });
 
         it('should return 404 id not fould in delete hero', () => {
-            const msg: string = 'Not found';
             const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+            const msg: string = 'Not found';
             const retryCount: number = 2;
 
             heroService.deleteHero(getHeroId).subscribe({
-                next: (hero) =>
-                    expect(hero)
-                        .withContext('fail get hero by id')
-                        .toBe(getHeroId),
-                error: () => fail,
+                next: () => fail('expected to fail'),
+                error: (error) => expect(error.message).toContain(msg),
             });
 
             for (var i = 0, c = retryCount + 1; i < c; i++) {
@@ -535,7 +521,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}/id=${getHeroId.id}`
                 );
                 expect(req.request.method).toEqual('DELETE');
-                req.flush(msg, { status: 404, statusText: 'Not Found' });
+                req.flush(msg, { status: 404, statusText: 'Not found' });
             }
         });
 
@@ -566,9 +552,7 @@ describe('HeroesServiceService', () => {
 
         it('should turn network error into user facing error when fetching an id', (done: DoneFn) => {
             const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
-            const errorEvent: ProgressEvent<EventTarget> = new ProgressEvent(
-                'error'
-            );
+            const errorEvent = new ProgressEvent('error');
             const retryCount: number = 2;
 
             heroService.deleteHero(getHeroId).subscribe({
@@ -584,7 +568,7 @@ describe('HeroesServiceService', () => {
                     `${heroService.baseUrl}/id=${getHeroId.id}`
                 );
                 expect(req.request.method).toEqual('DELETE');
-                req.flush(errorEvent, { status: 404, statusText: 'Not Found' });
+                req.error(errorEvent);
             }
         });
     });
