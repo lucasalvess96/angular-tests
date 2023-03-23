@@ -5,7 +5,7 @@ import {
     HttpParams,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, Observable, retry, throwError } from 'rxjs';
+import { catchError, map, Observable, of, retry, throwError } from 'rxjs';
 import { Heroes } from '../models/heroes';
 import { environment } from './../../../environments/environment';
 
@@ -27,23 +27,24 @@ export class HeroServiceService {
     getHeroes(): Observable<Heroes[]> {
         return this.http.get<Heroes[]>(this.baseUrl).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
     getHero(id: Heroes): Observable<Heroes> {
         const url = `${this.baseUrl}/?id=${id.id}`;
+
         return this.http.get<Heroes[]>(url).pipe(
             map((hero: Heroes[]) => hero.find((hero) => hero.id === +id)!),
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
     addHero(hero: Heroes): Observable<Heroes> {
         return this.http.post<Heroes>(this.baseUrl, hero, httpOpotions).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
@@ -52,32 +53,40 @@ export class HeroServiceService {
             'authorization',
             'my-auth-token'
         );
+
         return this.http.put<Heroes>(this.baseUrl, hero, httpOpotions).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
     searchHero(search: string): Observable<Heroes[]> {
-        search = search.trim();
         const options = search
             ? { params: new HttpParams().set('name', search) }
             : {};
+
+        search = search.trim();
+
+        if (!search.trim()) {
+            return of([]);
+        }
+
         return this.http.get<Heroes[]>(this.baseUrl, options).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
     deleteHero(id: Heroes): Observable<unknown> {
-        const deleteHeroId = `${this.baseUrl}/${id.id}`;
+        const deleteHeroId = `${this.baseUrl}/id=${id.id}`;
+
         return this.http.delete<Heroes>(deleteHeroId, httpOpotions).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.ConfigErrorApi(erro))
+            catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
     }
 
-    private ConfigErrorApi(erro: HttpErrorResponse) {
+    private handleError(erro: HttpErrorResponse) {
         if (erro.status === 0) {
             console.error(`verifique a conexão com da sua internet`);
         } else {

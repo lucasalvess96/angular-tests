@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import {
     HttpClientTestingModule,
     HttpTestingController,
@@ -8,7 +8,6 @@ import { Heroes } from '../models/heroes';
 import { HeroServiceService } from './hero-service.service';
 
 describe('HeroesServiceService', () => {
-    let httpClient: HttpClient;
     let httpTestingController: HttpTestingController;
     let heroService: HeroServiceService;
 
@@ -18,7 +17,6 @@ describe('HeroesServiceService', () => {
             providers: [HeroServiceService],
         });
 
-        httpClient = TestBed.inject(HttpClient);
         httpTestingController = TestBed.inject(HttpTestingController);
         heroService = TestBed.inject(HeroServiceService);
     });
@@ -89,11 +87,14 @@ describe('HeroesServiceService', () => {
         });
 
         it('should turn 500 into a user-friendly error', () => {
-            const msg: string = 'Deliberate 404';
+            const msg: string = 'Deliberate 500';
             const retryCount: number = 2;
 
             heroService.getHeroes().subscribe({
-                next: (heroes: Heroes[]) => expect(heroes).toEqual([]),
+                next: (heroes: Heroes[]) =>
+                    expect(heroes)
+                        .withContext('failed to call error 500')
+                        .toEqual([]),
                 error: () => fail,
             });
 
@@ -102,7 +103,10 @@ describe('HeroesServiceService', () => {
                     heroService.baseUrl
                 );
                 expect(req.request.method).toEqual('GET');
-                req.flush(msg, { status: 404, statusText: 'Not found' });
+                req.flush(msg, {
+                    status: 500,
+                    statusText: 'internal server error',
+                });
             }
         });
 
@@ -423,7 +427,165 @@ describe('HeroesServiceService', () => {
             });
             req.event(expectedResponse);
         });
+
+        it('shoudl return hero not found', () => {
+            const msg: string = 'Not found';
+            const retryCount: number = 2;
+            const search: string = 'AB';
+
+            heroService.searchHero(search).subscribe({
+                next: (hero: Heroes[]) =>
+                    expect(hero).withContext('fail get search hero').toBe(hero),
+                error: () => fail,
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}?name=${search}`
+                );
+                expect(req.request.method).toEqual('GET');
+                req.flush(msg, { status: 404, statusText: 'Not Found' });
+            }
+        });
+
+        it('should turn 500 into a friendly error if fetch by id fails', (done: DoneFn) => {
+            const search: string = 'AB';
+            const msg: string = '500 internal server error';
+            const retryCount: number = 2;
+
+            heroService.searchHero(search).subscribe({
+                next: () => fail('expected to fail'),
+                error: (error) => {
+                    expect(error.message).toContain(msg);
+                    done();
+                },
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}?name=${search}`
+                );
+                expect(req.request.method).toEqual('GET');
+                req.flush(msg, {
+                    status: 500,
+                    statusText: 'internal server error',
+                });
+            }
+        });
+
+        it('should turn network error into user facing error when fetching an id', (done: DoneFn) => {
+            const search: string = 'AB';
+            const errorEvent: ProgressEvent<EventTarget> = new ProgressEvent(
+                'error'
+            );
+            const retryCount: number = 2;
+
+            heroService.searchHero(search).subscribe({
+                next: () => fail('expected to fail'),
+                error: (error) => {
+                    expect(error).toBe(errorEvent);
+                    done();
+                },
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}?name=${search}`
+                );
+                expect(req.request.method).toEqual('GET');
+                req.flush(errorEvent, { status: 404, statusText: 'Not Found' });
+            }
+        });
     });
 
-    describe('#deleteHero', () => {});
+    describe('#deleteHero', () => {
+        it('should delete a hero', () => {
+            const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+
+            heroService.deleteHero(getHeroId).subscribe({
+                next: (hero) =>
+                    expect(hero)
+                        .withContext('fail get hero by id')
+                        .toBe(getHeroId),
+                error: () => fail,
+            });
+
+            const req = httpTestingController.expectOne(
+                `${heroService.baseUrl}/id=${getHeroId.id}`
+            );
+            expect(req.request.method).toEqual('DELETE');
+            req.flush(getHeroId);
+        });
+
+        it('should return 404 id not fould in delete hero', () => {
+            const msg: string = 'Not found';
+            const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+            const retryCount: number = 2;
+
+            heroService.deleteHero(getHeroId).subscribe({
+                next: (hero) =>
+                    expect(hero)
+                        .withContext('fail get hero by id')
+                        .toBe(getHeroId),
+                error: () => fail,
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}/id=${getHeroId.id}`
+                );
+                expect(req.request.method).toEqual('DELETE');
+                req.flush(msg, { status: 404, statusText: 'Not Found' });
+            }
+        });
+
+        it('should turn 500 into a friendly error if fetch by id fails in delete HERO', (done: DoneFn) => {
+            const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+            const msg: string = '500 internal server error';
+            const retryCount: number = 2;
+
+            heroService.deleteHero(getHeroId).subscribe({
+                next: () => fail('expected to fail'),
+                error: (error) => {
+                    expect(error.message).toContain(msg);
+                    done();
+                },
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}/id=${getHeroId.id}`
+                );
+                expect(req.request.method).toEqual('DELETE');
+                req.flush(msg, {
+                    status: 500,
+                    statusText: 'internal server error',
+                });
+            }
+        });
+
+        it('should turn network error into user facing error when fetching an id', (done: DoneFn) => {
+            const getHeroId: Heroes = { id: 1, name: 'AB', active: true };
+            const errorEvent: ProgressEvent<EventTarget> = new ProgressEvent(
+                'error'
+            );
+            const retryCount: number = 2;
+
+            heroService.deleteHero(getHeroId).subscribe({
+                next: () => fail('expected to fail'),
+                error: (error) => {
+                    expect(error).toBe(errorEvent);
+                    done();
+                },
+            });
+
+            for (var i = 0, c = retryCount + 1; i < c; i++) {
+                const req = httpTestingController.expectOne(
+                    `${heroService.baseUrl}/id=${getHeroId.id}`
+                );
+                expect(req.request.method).toEqual('DELETE');
+                req.flush(errorEvent, { status: 404, statusText: 'Not Found' });
+            }
+        });
+    });
 });
