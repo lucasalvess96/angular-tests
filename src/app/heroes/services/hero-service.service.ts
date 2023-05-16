@@ -27,7 +27,9 @@ export class HeroServiceService {
     getHeroes(): Observable<Heroes[]> {
         return this.http.get<Heroes[]>(this.baseUrl).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) => this.handleError(erro))
+            catchError((erro: HttpErrorResponse) =>
+                this.handleError(erro.error)
+            )
         );
     }
 
@@ -35,7 +37,10 @@ export class HeroServiceService {
         const url = `${this.baseUrl}/?id=${id.id}`;
 
         return this.http.get<Heroes[]>(url).pipe(
-            map((hero: Heroes[]) => hero.find((hero) => hero.id === +id)!),
+            map(
+                (hero: Heroes[]) =>
+                    hero.find((hero: Heroes) => hero.id === +id)!
+            ),
             retry(2),
             catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
@@ -88,9 +93,9 @@ export class HeroServiceService {
 
     private handleError(erro: HttpErrorResponse) {
         if (erro.status === 0) {
-            console.error(`verifique a conexão com da sua internet`);
+            alert(`verifique a conexão com da sua internet`);
         } else {
-            console.error(`O back-end retornou o código ${erro.message}`);
+            alert(`O back-end retornou o código ${erro.error}`);
         }
 
         if (erro.error instanceof Event) {

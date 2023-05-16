@@ -1,0 +1,19 @@
+.mat-elevation-z8{
+    width: 80%;
+    margin: 0 80px;
+}
+
+table {
+    width: 100%;
+    max-width: 1080px;
+  }
+
+  .mat-form-field {
+    margin: 0 80px;
+    font-size: 14px;
+    width: 80%;
+  }
+
+  td, th {
+    width: 25%;
+  }

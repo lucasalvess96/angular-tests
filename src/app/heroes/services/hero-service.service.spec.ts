@@ -1,4 +1,4 @@
-import { HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import {
     HttpClientTestingModule,
     HttpTestingController,
@@ -8,6 +8,7 @@ import { Heroes } from '../models/heroes';
 import { HeroServiceService } from './hero-service.service';
 
 describe('HeroesServiceService', () => {
+    let httpClient: HttpClient;
     let httpTestingController: HttpTestingController;
     let heroService: HeroServiceService;
 
@@ -259,14 +260,14 @@ describe('HeroesServiceService', () => {
             }
         });
 
-        it('should turn network error into user-facing error in method post', (done) => {
+        it('should turn network error into user-facing error in method post', (done: DoneFn) => {
             const errorEvent = new ProgressEvent('error');
             const addHeroes: Heroes = { id: 1, name: 'AB', active: true };
             const retryCount: number = 2;
 
             heroService.addHero(addHeroes).subscribe({
                 next: () => fail('expected to fail'),
-                error: (error) => {
+                error: (error: any) => {
                     expect(error).toEqual(errorEvent);
                     done();
                 },
