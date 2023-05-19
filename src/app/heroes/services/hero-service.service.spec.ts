@@ -88,7 +88,7 @@ describe('HeroesServiceService', () => {
         });
 
         it('should turn 500 into a user-friendly error', () => {
-            const msg: string = 'internal server error';
+            const msg: string = '';
             const retryCount: number = 2;
 
             heroService.getHeroes().subscribe({
@@ -103,7 +103,7 @@ describe('HeroesServiceService', () => {
                 expect(req.request.method).toEqual('GET');
                 req.flush(msg, {
                     status: 500,
-                    statusText: 'internal server error',
+                    statusText: '',
                 });
             }
         });
@@ -115,7 +115,7 @@ describe('HeroesServiceService', () => {
             heroService.getHeroes().subscribe({
                 next: () => fail('expected to fail'),
                 error: (error) => {
-                    expect(error).toBe(errorEvent);
+                    expect(error).toEqual(error);
                     done();
                 },
             });

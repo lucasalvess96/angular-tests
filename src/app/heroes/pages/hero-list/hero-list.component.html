@@ -44,3 +44,13 @@
         aria-label="Select page of users"
     ></mat-paginator>
 </div>
+
+<mat-progress-spinner
+    class="example-margin"
+    [color]="color"
+    [mode]="mode"
+    [value]="value"
+    *ngIf="loading"
+    message="carragando informações"
+>
+</mat-progress-spinner>

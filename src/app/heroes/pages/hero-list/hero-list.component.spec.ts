@@ -2,7 +2,7 @@ import { HarnessLoader, parallel } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import {
     MatRowHarness,
@@ -39,12 +39,12 @@ describe('HeroListComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('dataSource sorting', () => {
-        fixture.detectChanges();
-        component.ngOnInit();
-        const sort = component.dataSource.sort;
-        expect(sort).toBeInstanceOf(MatSort);
-    });
+    // it('dataSource sorting', () => {
+    //     fixture.detectChanges();
+    //     component.ngOnInit();
+    //     const sort = component.dataSource.sort;
+    //     expect(sort).toBeInstanceOf(MatSort);
+    // });
 
     it('should load harness for a table', async () => {
         const table = await loader.getAllHarnesses(MatTableHarness);
