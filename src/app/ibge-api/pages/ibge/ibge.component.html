@@ -1,0 +1,24 @@
+<form [formGroup]="formGroup">
+    <mat-form-field appearance="fill">
+        <mat-label>UF do Brasil</mat-label>
+        <mat-select
+            name="uf"
+            [formControlName]="'uf'"
+            [required]="true"
+            (ngModelChange)="IbgeCity($event)"
+        >
+            <mat-option *ngFor="let uf of ufs" [value]="uf.sigla">
+                {{ uf.nome }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" style="margin-left: 18px">
+        <mat-label>Cidades</mat-label>
+        <mat-select name="city" [formControlName]="'city'" required="true">
+            <mat-option *ngFor="let city of citys" [value]="city.nome">
+                {{ city.nome }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</form>

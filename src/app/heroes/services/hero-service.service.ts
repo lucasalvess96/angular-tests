@@ -5,7 +5,7 @@ import {
     HttpParams,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, Observable, of, retry, throwError } from 'rxjs';
+import { Observable, catchError, map, of, retry, throwError } from 'rxjs';
 import { Heroes } from '../models/heroes';
 import { environment } from './../../../environments/environment';
 

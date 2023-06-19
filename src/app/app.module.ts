@@ -5,6 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeroesModule } from './heroes/heroes.module';
+import { IbgeApiModule } from './ibge-api/ibge-api.module';
 
 @NgModule({
     declarations: [AppComponent],
@@ -13,6 +14,7 @@ import { HeroesModule } from './heroes/heroes.module';
         AppRoutingModule,
         HeroesModule,
         BrowserAnimationsModule,
+        IbgeApiModule,
     ],
     providers: [HttpClientModule],
     bootstrap: [AppComponent],

@@ -30,7 +30,7 @@ export class HeroListComponent implements OnInit, OnDestroy {
     mode: ProgressSpinnerMode = 'indeterminate';
     value: number = 50;
 
-    unsubscribe = new Subject<void>();
+    unsubscribe: Subject<void> = new Subject<void>();
 
     ngOnInit(): void {
         this.list();
