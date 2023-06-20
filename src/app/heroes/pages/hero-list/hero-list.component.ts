@@ -12,7 +12,7 @@ import { HeroServiceService } from '../../services/hero-service.service';
 @Component({
     selector: 'app-hero-list',
     templateUrl: './hero-list.component.html',
-    styleUrls: ['./hero-list.component.css'],
+    styleUrls: ['./hero-list.component.css']
 })
 export class HeroListComponent implements OnInit, OnDestroy {
     dataSource!: MatTableDataSource<Heroes>;
@@ -48,7 +48,7 @@ export class HeroListComponent implements OnInit, OnDestroy {
                     this.dataSource.paginator = this.paginator;
                     this.dataSource.sort = this.sort;
                 },
-                error: (error: HttpErrorResponse) => window.alert(error.name),
+                error: (error: HttpErrorResponse) => window.alert(error.name)
             });
     }
 

@@ -1,12 +1,9 @@
-<form [formGroup]="formGroup">
+<h2>Listar cidades de acordo com a UF selecionada</h2>
+
+<form [formGroup]="formGroup" (ngSubmit)="formsSave()">
     <mat-form-field appearance="fill">
-        <mat-label>UF do Brasil</mat-label>
-        <mat-select
-            name="uf"
-            [formControlName]="'uf'"
-            [required]="true"
-            (ngModelChange)="IbgeCity($event)"
-        >
+        <mat-label>UF</mat-label>
+        <mat-select [formControlName]="'uf'" [required]="true" (ngModelChange)="IbgeCity($event)">
             <mat-option *ngFor="let uf of ufs" [value]="uf.sigla">
                 {{ uf.nome }}
             </mat-option>
@@ -15,10 +12,30 @@
 
     <mat-form-field appearance="fill" style="margin-left: 18px">
         <mat-label>Cidades</mat-label>
-        <mat-select name="city" [formControlName]="'city'" required="true">
+        <mat-select [formControlName]="'city'" required="true">
             <mat-option *ngFor="let city of citys" [value]="city.nome">
                 {{ city.nome }}
             </mat-option>
         </mat-select>
     </mat-form-field>
+
+    <mat-card-actions>
+        <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            title="salvar informações"
+            [disabled]="formGroup.invalid"
+        >
+            <mat-icon>save</mat-icon>
+            Salvar
+        </button>
+
+        <a routerLink="/" routerLinkActive="activebutton" ariaCurrentWhenActive="page">
+            <button mat-raised-button color="warn" title="voltar para home">
+                <mat-icon>arrow_left</mat-icon>
+                Voltar
+            </button>
+        </a>
+    </mat-card-actions>
 </form>

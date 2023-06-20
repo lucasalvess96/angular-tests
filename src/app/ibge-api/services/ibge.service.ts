@@ -1,29 +1,25 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, retry, throwError } from 'rxjs';
-import { Ibge } from '../models/ibge';
+import { IbgeCitys, IbgeUf } from '../models/ibge';
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class IbgeService {
     constructor(private http: HttpClient) {}
 
-    listUf(): Observable<Ibge[]> {
-        return this.http
-            .get<Ibge[]>(
-                'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
-            )
-            .pipe(
-                retry(2),
-                catchError((erro: HttpErrorResponse) => this.handleErro(erro))
-            );
+    listIbgeUf(): Observable<IbgeUf[]> {
+        return this.http.get<IbgeUf[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados').pipe(
+            retry(2),
+            catchError((erro: HttpErrorResponse) => this.handleErro(erro))
+        );
     }
 
-    listCidades(estados: string): Observable<Ibge[]> {
+    listIbgeCitys(city: IbgeCitys): Observable<IbgeCitys[]> {
         return this.http
-            .get<Ibge[]>(
-                `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estados}/municipios`
+            .get<IbgeCitys[]>(
+                `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${city}/municipios`
             )
             .pipe(
                 retry(2),

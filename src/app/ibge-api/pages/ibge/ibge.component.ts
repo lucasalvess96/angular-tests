@@ -1,49 +1,67 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Ibge } from '../../models/ibge';
+import { Subject, takeUntil } from 'rxjs';
+import { IbgeCitys, IbgeUf } from '../../models/ibge';
 import { IbgeService } from '../../services/ibge.service';
 
 @Component({
     selector: 'app-ibge',
     templateUrl: './ibge.component.html',
-    styleUrls: ['./ibge.component.css'],
+    styleUrls: ['./ibge.component.css']
 })
-export class IbgeComponent implements OnInit {
+export class IbgeComponent implements OnInit, OnDestroy {
     formGroup!: FormGroup;
 
-    ufs?: Ibge[];
-    citys?: Ibge[];
+    ufs?: IbgeUf[];
+    citys?: IbgeCitys[];
 
-    constructor(
-        private ibgeService: IbgeService,
-        private formBuilder: FormBuilder
-    ) {}
+    unsubscribe: Subject<void> = new Subject<void>();
+
+    constructor(private ibgeService: IbgeService, private formBuilder: FormBuilder) {}
 
     ngOnInit(): void {
         this.formGroup = this.formBuilder?.group({
             uf: ['', Validators.required],
-            city: ['', Validators.required],
+            city: ['', Validators.required]
         });
 
         this.IbgeUf();
     }
 
     IbgeUf(): void {
-        this.ibgeService.listUf().subscribe({
-            next: (response: Ibge[]) => {
-                this.ufs = response;
-            },
-            error: (erro: HttpErrorResponse) => console.log(erro.error),
-        });
+        this.ibgeService
+            .listIbgeUf()
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe({
+                next: (response: IbgeUf[]) => {
+                    this.ufs = response;
+                },
+                error: (erro: HttpErrorResponse) => console.log(erro.error)
+            });
     }
 
-    IbgeCity(city: any): void {
-        this.ibgeService.listCidades(city).subscribe({
-            next: (response: Ibge[]) => {
-                this.citys = response;
-            },
-            error: (erro: HttpErrorResponse) => console.log(erro.error),
-        });
+    IbgeCity(city: IbgeCitys): void {
+        this.ibgeService
+            .listIbgeCitys(city)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe({
+                next: (response: IbgeCitys[]) => {
+                    this.citys = response;
+                },
+                error: (erro: HttpErrorResponse) => console.log(erro.error)
+            });
+    }
+
+    formsSave(): void {
+        if (this.formGroup.valid) {
+            const values = this.formGroup.value;
+            console.log(values);
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 }

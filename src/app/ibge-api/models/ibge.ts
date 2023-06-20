@@ -1,17 +1,11 @@
-export interface Ibge {
-    id: number;
-    sigla: string;
-    nome: string;
-}
-
 export interface IbgeUf {
     id: number;
     sigla: string;
     nome: string;
-    regiao: Regiao;
+    regiao: Region;
 }
 
-export interface Regiao {
+export interface Region {
     id: number;
     sigla: string;
     nome: string;

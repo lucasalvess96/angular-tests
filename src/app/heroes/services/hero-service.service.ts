@@ -1,9 +1,4 @@
-import {
-    HttpClient,
-    HttpErrorResponse,
-    HttpHeaders,
-    HttpParams,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of, retry, throwError } from 'rxjs';
 import { Heroes } from '../models/heroes';
@@ -12,12 +7,12 @@ import { environment } from './../../../environments/environment';
 const httpOpotions = {
     headers: new HttpHeaders({
         'Content-type': 'application/json',
-        Authorization: 'my-auth-token',
-    }),
+        Authorization: 'my-auth-token'
+    })
 };
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class HeroServiceService {
     baseUrl: string = `${environment.baseUrl}/heroes`;
@@ -27,9 +22,7 @@ export class HeroServiceService {
     getHeroes(): Observable<Heroes[]> {
         return this.http.get<Heroes[]>(this.baseUrl).pipe(
             retry(2),
-            catchError((erro: HttpErrorResponse) =>
-                this.handleError(erro.error)
-            )
+            catchError((erro: HttpErrorResponse) => this.handleError(erro.error))
         );
     }
 
@@ -37,10 +30,7 @@ export class HeroServiceService {
         const url = `${this.baseUrl}/?id=${id.id}`;
 
         return this.http.get<Heroes[]>(url).pipe(
-            map(
-                (hero: Heroes[]) =>
-                    hero.find((hero: Heroes) => hero.id === +id)!
-            ),
+            map((hero: Heroes[]) => hero.find((hero: Heroes) => hero.id === +id)!),
             retry(2),
             catchError((erro: HttpErrorResponse) => this.handleError(erro))
         );
@@ -54,10 +44,7 @@ export class HeroServiceService {
     }
 
     updateHero(hero: Heroes): Observable<Heroes> {
-        httpOpotions.headers = httpOpotions.headers.set(
-            'authorization',
-            'my-auth-token'
-        );
+        httpOpotions.headers = httpOpotions.headers.set('authorization', 'my-auth-token');
 
         return this.http.put<Heroes>(this.baseUrl, hero, httpOpotions).pipe(
             retry(2),
@@ -66,9 +53,7 @@ export class HeroServiceService {
     }
 
     searchHero(search: string): Observable<Heroes[]> {
-        const options = search
-            ? { params: new HttpParams().set('name', search) }
-            : {};
+        const options = search ? { params: new HttpParams().set('name', search) } : {};
 
         search = search.trim();
 
