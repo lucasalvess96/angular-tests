@@ -4,10 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import {
-    MatRowHarness,
-    MatTableHarness,
-} from '@angular/material/table/testing';
+import { MatRowHarness, MatTableHarness } from '@angular/material/table/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HeroListComponent } from './hero-list.component';
 
@@ -19,12 +16,7 @@ describe('HeroListComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [HeroListComponent],
-            imports: [
-                HttpClientModule,
-                MatTableModule,
-                MatSortModule,
-                BrowserAnimationsModule,
-            ],
+            imports: [HttpClientModule, MatTableModule, MatSortModule, BrowserAnimationsModule]
         }).compileComponents();
     });
 
@@ -64,13 +56,11 @@ describe('HeroListComponent', () => {
         const headerRows = await table.getHeaderRows();
         const rows = await table.getRows();
 
-        const headerCells = (
-            await parallel(() => headerRows.map((row) => row.getCells()))
-        ).map((row) => row.length);
+        const headerCells = (await parallel(() => headerRows.map((row) => row.getCells()))).map(
+            (row) => row.length
+        );
 
-        const cells = (
-            await parallel(() => rows.map((row) => row.getCells()))
-        ).map((row) => row.length);
+        const cells = (await parallel(() => rows.map((row) => row.getCells()))).map((row) => row.length);
 
         expect(headerCells).toEqual([3]);
         expect(cells).toEqual([3, 3, 3, 3, 3, 3, 3, 3, 3]);
@@ -80,9 +70,7 @@ describe('HeroListComponent', () => {
         const table = await loader.getHarness(MatTableHarness);
         const secondRow = (await table.getRows())[1];
         const cells = await secondRow.getCells();
-        const cellText = await parallel(() =>
-            cells.map((cell) => cell.getText())
-        );
+        const cellText = await parallel(() => cells.map((cell) => cell.getText()));
         expect(cellText).toEqual(['2', 'json-server2', 'true']);
     });
 
@@ -90,9 +78,7 @@ describe('HeroListComponent', () => {
         const table: MatTableHarness = await loader.getHarness(MatTableHarness);
         const fifthRow: MatRowHarness = (await table.getRows())[1];
         const cells = await fifthRow.getCells();
-        const cellColumnNames = await parallel(() =>
-            cells.map((cell) => cell.getColumnName())
-        );
+        const cellColumnNames = await parallel(() => cells.map((cell) => cell.getColumnName()));
         expect(cellColumnNames).toEqual(['id', 'name', 'active']);
     });
 
@@ -100,9 +86,7 @@ describe('HeroListComponent', () => {
         const table = await loader.getHarness(MatTableHarness);
         const firstRow = (await table.getRows())[0];
         const cells = await firstRow.getCells({ text: 'json-server' });
-        const cellTexts = await parallel(() =>
-            cells.map((cell) => cell.getText())
-        );
+        const cellTexts = await parallel(() => cells.map((cell) => cell.getText()));
         expect(cellTexts).toEqual(['json-server']);
     });
 
@@ -110,9 +94,7 @@ describe('HeroListComponent', () => {
         const table = await loader.getHarness(MatTableHarness);
         const firstRow = (await table.getRows())[0];
         const cells = await firstRow.getCells({ columnName: 'name' });
-        const cellTexts = await parallel(() =>
-            cells.map((cell) => cell.getText())
-        );
+        const cellTexts = await parallel(() => cells.map((cell) => cell.getText()));
         expect(cellTexts).toEqual(['json-server']);
     });
 });

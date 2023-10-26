@@ -54,13 +54,10 @@ export class HeroServiceService {
 
     searchHero(search: string): Observable<Heroes[]> {
         const options = search ? { params: new HttpParams().set('name', search) } : {};
-
         search = search.trim();
-
         if (!search.trim()) {
             return of([]);
         }
-
         return this.http.get<Heroes[]>(this.baseUrl, options).pipe(
             retry(2),
             catchError((erro: HttpErrorResponse) => this.handleError(erro))
@@ -80,6 +77,8 @@ export class HeroServiceService {
         if (erro.status === 0) {
             alert(`verifique a conexão com da sua internet`);
         } else {
+            console.log(erro);
+
             alert(`O back-end retornou o código ${erro.error}`);
         }
 
